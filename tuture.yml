@@ -1,4 +1,4 @@
-name: My Awesome Tutorial
+name: Express 搭建完整的后台用户系统
 id: 367d98ae71986bc82e1d5e6a185242b0
 steps:
   - name: 初始化项目
@@ -11,8 +11,7 @@ steps:
         explain:
           pre: >-
             然后运行 `npm init`，回答完一系列问题即可生成 package.json 文件（如果你懒得回答问题的话可以加上 `-y`
-            选项）。然后安装 express 和
-            morgan（日志中间件，如果对[中间件](http://www.expressjs.com.cn/guide/using-middleware.html)概念不太了解的话也不用担心，后面会详细讲解）。
+            选项）。然后安装 express 和 morgan（日志中间件）。
 
 
             ```bash
@@ -25,12 +24,31 @@ steps:
             你也可以直接复制下面 package.json 的内容，然后执行 `npm install`。
           post: 这里我们将 `private` 字段设置为 `true`，是为了避免意外发布此项目。
     explain:
-      pre: |-
-        我们创建一个目录用于开发此项目：
+      pre: >
+        创建一个目录用于开发此项目：
+
 
         ```bash
-        $ mkdir user-system && cd user-system
+
+        $ mkdir express-user-system && cd express-user-system
+
         ```
+
+
+
+        >
+        如果想要查看最终的代码，你可以把这个[仓库](https://github.com/mRcfps/express-user-system.git)
+        clone 下来，然后切换到 `finish-1` 分支：
+
+        > ```bash
+
+        > $ git clone https://github.com/mRcfps/express-user-system.git
+
+        > $ cd express-user-system
+
+        > $ git checkout finish-1
+
+        > ```
   - name: 编写最简单的服务器
     commit: dcc0730
     diff:
@@ -278,3 +296,49 @@ steps:
 
 
         如果你习惯用 Postman 的话，当然也可以试试看哦！
+  - name: 实现登录端口
+    commit: fd2d14d
+    diff:
+      - file: models/User.js
+        display: true
+        explain:
+          pre: 我们为 `User` 模型添加一个实例方法 `comparePassword`，用于判断所提供的明文密码是否和被加密过的密码是相同的：
+          post: 在后面的数据库查询中，我们就可以调用任一 `User` 实例的 `comparePassword` 方法来判断密码的正确性。
+      - file: app.js
+        display: true
+        explain:
+          pre: 接着在 app.js 中添加 POST /login 的路由逻辑：
+          post: |-
+            与上一步骤相同，我们使用 Promise 的链式调用来处理以下流程：
+
+            1. 在数据库中查询符合指定 `username` 的用户是否存在
+            2. 如果用户不存在，结束流程，否则验证密码是否正确
+            3. 如果密码正确，返回 200 状态码及成功提示，否则结束流程
+      - file: tuture.yml
+    explain:
+      pre: 我们继续实现登录端口。
+      post: >-
+        我们继续用 curl （或者 Postman）来验证 /login 端口：
+
+
+        ```bash
+
+        $ curl -H "Content-Type: application/json" -X POST -d
+        '{"username":"test","password":"test"}' localhost:3000/login
+
+        登陆成功！
+
+        $ curl -H "Content-Type: application/json" -X POST -d
+        '{"username":"test","password":"foo"}' localhost:3000/login
+
+        密码错误！
+
+        $ curl -H "Content-Type: application/json" -X POST -d
+        '{"username":"unknown","password":"unknown"}' localhost:3000/login
+
+        用户名不存在！
+
+        ```
+
+
+        至此，一个简陋但基本成形的用户系统已经搭建好了。在接下里的教程中，我们将搭建前端页面及相应的会话机制。
