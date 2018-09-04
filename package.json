@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "argon2": "^0.19.3",
+    "body-parser": "^1.18.3",
     "express": "^4.16.3",
     "mongoose": "^5.2.12",
     "morgan": "^1.9.0"
