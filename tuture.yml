@@ -32,7 +32,7 @@ steps:
         $ mkdir user-system && cd user-system
         ```
   - name: 编写最简单的服务器
-    commit: 32c1f40
+    commit: dcc0730
     diff:
       - file: .gitignore
       - file: app.js
@@ -66,5 +66,20 @@ steps:
 
 
             最后在第 12 行，我们让 `app` 监听 3000 端口。
+      - file: package.json
+        display: true
+        explain:
+          pre: 接下来在 package.json 中添加 npm `start` 脚本：
     explain:
       pre: 这里我们用 express 编写一个最简单的 web 服务器。
+      post: >-
+        运行 `npm start`，在浏览器中访问
+        [localhost:3000](http://localhost:3000)，可以看到我们的服务器返回了“主页”两字，并且由于 morgan
+        中间件的作用，我们可以看到访问日志记录：
+
+
+        ```
+
+        GET / 200 2.791 ms - 6
+
+        ```
