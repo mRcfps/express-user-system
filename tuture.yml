@@ -44,27 +44,6 @@ steps:
         explain:
           pre: 创建 app.js 如下：
           post: >-
-            如果你已经比较熟悉 express 的基本使用，那么可以跳过这一段继续往下看。
-
-
-            理解 express 框架的关键在于理解**中间件**这个概念，我们先来看 express 官方文档的解释：
-
-
-            > 中间件（Middleware） 是一个函数，它可以访问请求对象（request object (req)）,
-            响应对象（response object (res)）, 和 web 应用中处于请求-响应循环流程中的中间件，一般被命名为 next
-            的变量。
-
-
-            也就是说，只要符合以下函数签名的就算是一个中间件：
-
-
-            ```javascript
-
-            function middleware(req, res, next)
-
-            ```
-
-
             首先我们在第 4 行初始化了一个 express app，然后在第 6 行注册了一个中间件 `morgan()`，在第 8
             行注册了一个路由中间件。express 将会按照从上到下的顺序依次执行中间件。
 
@@ -214,3 +193,88 @@ steps:
 
 
         干得不错！接下来让我们把服务器中接入数据库吧！
+  - name: 实现注册端口
+    commit: fd6375d
+    diff:
+      - file: package.json
+        display: true
+        explain:
+          pre: |-
+            首先我们需要处理 POST 请求体，这将由 body-parser 中间件来负责：
+
+            ```bash
+            $ npm install body-parser
+            ```
+      - file: app.js
+        display: true
+        explain:
+          pre: 然后在 app.js 中添加连接数据库、注册 `bodyParser` 中间件、添加 signup 路由的代码：
+          post: >-
+            数据库连接部分的代码在之前 REPL 中测试过，因此不再详述。
+
+
+            `bodyParser` 的两个中间件分别负责处理 JSON 和表单数据的解析，解析之后的数据我们可以通过 `req.body`
+            来访问。例如对于下面的 JSON 数据：
+
+
+            ```json
+
+            {
+              "username": "test",
+              "password": "test"
+            }
+
+            ```
+
+
+            我们可以分别通过 `req.body.username` 和 `req.body.password` 来获取用户名和密码。
+
+
+            至于 signup 路由逻辑的实现，这里我们使用了 Promise
+            的链式调用技巧（如果你不太了解的话，可以阅读一下[这篇文章](https://segmentfault.com/a/1190000007598894)）来顺序执行各个操作：
+
+
+            1.
+            从数据库中查询此用户名是否有对应的用户，可以在[这里](https://mongoosejs.com/docs/queries.html)查看所有的查询方法。
+
+            2. 如果查询到用户，则终止 Promise 链的执行，否则就创建新的用户模型并保存至数据库
+
+            3. 保存至数据库成功，返回 201（Created）和相应信息
+
+
+            我们在 Promise 链的最后使用 `catch` 来捕获所有可能的 Error。Error 的来源分两种：一种是由于 25 行的
+            `Promise.reject`，我们返回 400 状态码及其错误信息；另一种是其他 Mongoose 方法抛出的错误，我们就通过
+            `next` 将错误传递给 express 的 [Error
+            Handler](http://www.expressjs.com.cn/guide/error-handling.html)。
+      - file: package-lock.json
+      - file: tuture.yml
+    explain:
+      pre: 我们先实现注册端口。
+      post: >-
+        我们用 curl 来测试一下刚才写的 signup 端口：
+
+
+        ```bash
+
+        $ curl -H "Content-Type: application/json" -X POST -d
+        '{"username":"xyz","password":"xyz"}' localhost:3000/signup
+
+        注册成功！
+
+        ```
+
+
+        再执行一下同样的命令（尝试用同样的用户名注册）：
+
+
+        ```bash
+
+        $ curl -H "Content-Type: application/json" -X POST -d
+        '{"username":"xyz","password":"xyz"}' localhost:3000/signup
+
+        用户名已经被注册！
+
+        ```
+
+
+        如果你习惯用 Postman 的话，当然也可以试试看哦！

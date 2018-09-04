@@ -14,6 +14,10 @@ userSchema.pre('save', async function() {
   this.password = hash;
 });
 
+userSchema.methods.comparePassword = function(candidatePassword) {
+  return argon2.verify(this.password, candidatePassword);
+};
+
 const User = mongoose.model('User', userSchema);
 
 module.exports = User;

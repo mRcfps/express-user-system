@@ -17,6 +17,34 @@ app.get('/', (req, res) => {
   res.send('主页');
 });
 
+app.post('/login', (req, res, next) => {
+  User.findOne({ username: req.body.username })
+    .then(user => {
+      if (!user) {
+        return Promise.reject({
+          badRequest: true,
+          message: '用户名不存在！',
+        });
+      }
+      return user.comparePassword(req.body.password);
+    })
+    .then(isMatch => {
+      if (isMatch) {
+        return res.status(200).send('登陆成功！');
+      }
+      return Promise.reject({
+        badRequest: true,
+        message: '密码错误！',
+      });
+    })
+    .catch(err => {
+      if (err.badRequest) {
+        return res.status(400).send(err.message);
+      }
+      next(err);
+    });
+});
+
 app.post('/signup', (req, res, next) => {
   User.findOne({ username: req.body.username })
     .then(user => {
