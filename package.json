@@ -4,6 +4,9 @@
   "private": true,
   "description": "A simple user system with expressjs",
   "main": "index.js",
+  "scripts": {
+    "start": "node app.js"
+  },
   "dependencies": {
     "express": "^4.16.3",
     "morgan": "^1.9.0"

@@ -1,0 +1,70 @@
+name: My Awesome Tutorial
+id: 367d98ae71986bc82e1d5e6a185242b0
+steps:
+  - name: 初始化项目
+    commit: 73879db
+    diff:
+      - file: .gitignore
+      - file: package-lock.json
+      - file: package.json
+        display: true
+        explain:
+          pre: >-
+            然后运行 `npm init`，回答完一系列问题即可生成 package.json 文件（如果你懒得回答问题的话可以加上 `-y`
+            选项）。然后安装 express 和
+            morgan（日志中间件，如果对[中间件](http://www.expressjs.com.cn/guide/using-middleware.html)概念不太了解的话也不用担心，后面会详细讲解）。
+
+
+            ```bash
+
+            $ npm install express morgan
+
+            ```
+
+
+            你也可以直接复制下面 package.json 的内容，然后执行 `npm install`。
+          post: 这里我们将 `private` 字段设置为 `true`，是为了避免意外发布此项目。
+    explain:
+      pre: |-
+        我们创建一个目录用于开发此项目：
+
+        ```bash
+        $ mkdir user-system && cd user-system
+        ```
+  - name: 编写最简单的服务器
+    commit: 32c1f40
+    diff:
+      - file: .gitignore
+      - file: app.js
+        display: true
+        explain:
+          pre: 创建 app.js 如下：
+          post: >-
+            如果你已经比较熟悉 express 的基本使用，那么可以跳过这一段继续往下看。
+
+
+            理解 express 框架的关键在于理解**中间件**这个概念，我们先来看 express 官方文档的解释：
+
+
+            > 中间件（Middleware） 是一个函数，它可以访问请求对象（request object (req)）,
+            响应对象（response object (res)）, 和 web 应用中处于请求-响应循环流程中的中间件，一般被命名为 next
+            的变量。
+
+
+            也就是说，只要符合以下函数签名的就算是一个中间件：
+
+
+            ```javascript
+
+            function middleware(req, res, next)
+
+            ```
+
+
+            首先我们在第 4 行初始化了一个 express app，然后在第 6 行注册了一个中间件 `morgan()`，在第 8
+            行注册了一个路由中间件。express 将会按照从上到下的顺序依次执行中间件。
+
+
+            最后在第 12 行，我们让 `app` 监听 3000 端口。
+    explain:
+      pre: 这里我们用 express 编写一个最简单的 web 服务器。
